@@ -888,5 +888,119 @@
                 "quantity": 4
             }
         ]
+    },
+    {
+        "name": "Craquelocape Légendaire",
+        "level": 84,
+        "metier": "Tailleur",
+        "type" :"Cape",   
+        "recipe": [
+            {
+                "name" : "Fragment de pierre polie",
+                "type" : "Resource",
+                "quantity": 11
+            },
+            {
+                "name" : "Oeil de craquelope",
+                "type" : "Resource",
+                "quantity": 9
+            },
+            {
+                "name" : "Dent en or du craqueleur",
+                "type" : "Resource",
+                "quantity": 1
+            },
+            {
+                "name" : "Pierre du craqueleur legendaire",
+                "type" : "Resource",
+                "quantity": 12
+            },
+            {
+                "name" : "Bakelelite",
+                "type" : "Resource",
+                "quantity": 4
+            },
+            {
+                "name" : "Galet cramoisi",
+                "type" : "Resource",
+                "quantity": 6
+            }
+        ]
+    },
+    {
+        "name": "Coiffe de Daïgoro",
+        "level": 83,
+        "metier": "Tailleur",
+        "type" :"Coiffe",   
+        "recipe": [
+            {
+                "name" : "Bakelelite",
+                "type" : "Resource",
+                "quantity": 4
+            },
+            {
+                "name" : "Lait de dragodinde",
+                "type" : "Resource",
+                "quantity": 7
+            },
+            {
+                "name" : "Pierre medicinale",
+                "type" : "Resource",
+                "quantity": 7
+            },
+            {
+                "name" : "Coeur du mantiscore",
+                "type" : "Resource",
+                "quantity": 1
+            },
+            {
+                "name" : "Rose des sables",
+                "type" : "Resource",
+                "quantity": 80
+            },
+            {
+                "name" : "Boulon wabbit",
+                "type" : "Resource",
+                "quantity": 11
+            }
+        ]
+    },
+    {
+        "name": "Coiffe du Koulosse",
+        "level": 82,
+        "metier": "Tailleur",
+        "type" :"Coiffe",   
+        "recipe": [
+            {
+                "name" : "Pelote de laine boufcoul",
+                "type" : "Resource",
+                "quantity": 1
+            },
+            {
+                "name" : "Feuille de kaliptus",
+                "type" : "Resource",
+                "quantity": 9
+            },
+            {
+                "name" : "Poils de koalak coco",
+                "type" : "Resource",
+                "quantity": 9
+            },
+            {
+                "name" : "Coiffe dechiquetee de drakoalak",
+                "type" : "Resource",
+                "quantity": 1
+            },
+            {
+                "name" : "Bakelelite",
+                "type" : "Resource",
+                "quantity": 2
+            },
+            {
+                "name" : "Rose des sables",
+                "type" : "Resource",
+                "quantity": 60
+            }
+        ]
     }
 ]
