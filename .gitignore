@@ -1,1 +1,3 @@
 search.py
+__pycache__
+*.png
