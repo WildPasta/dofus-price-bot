@@ -1,20 +1,15 @@
-# Standard library imports
 import os
+import pynput
+import pytesseract
 from datetime import datetime
+from gui import *
+from PIL import Image
+from prettytable import PrettyTable
+from pynput.mouse import Button as pybtn
+from pynput.keyboard import Key
+import pyscreenshot as ImageGrab
 from random import uniform
 from time import sleep
-
-# Third party imports
-from PIL import Image
-import pyscreenshot as ImageGrab
-import pytesseract
-from prettytable import PrettyTable
-import pynput
-from pynput.keyboard import Key
-from pynput.mouse import Button as pybtn
-
-# Local application imports
-from gui import *
 
 mouse = pynput.mouse.Controller()
 keyboard = pynput.keyboard.Controller()
