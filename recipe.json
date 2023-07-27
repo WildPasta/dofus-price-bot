@@ -1003,4 +1003,28 @@
             }
         ]
     }
+    ,
+    {
+        "name": "Coiffe du Bouftou",
+        "level": 20,
+        "metier": "Tailleur",
+        "type" :"Coiffe",   
+        "recipe": [
+            {
+                "name" : "Corne de Boufton",
+                "type" : "Resource",
+                "quantity": 4
+            },
+            {
+                "name" : "Corne de Chef de Guerre Bouftou",
+                "type" : "Resource",
+                "quantity": 1
+            },
+            {
+                "name" : "Substrat de Buisson",
+                "type" : "Resource",
+                "quantity": 1
+            }
+        ]
+    }
 ]
