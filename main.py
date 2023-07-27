@@ -13,7 +13,7 @@ from time import sleep
 
 mouse = pynput.mouse.Controller()
 keyboard = pynput.keyboard.Controller()
-pytesseract.pytesseract.tesseract_cmd = r'C:\\Users\\richa\AppData\\Local\\Programs\\Tesseract-OCR\\tesseract.exe'
+pytesseract.pytesseract.tesseract_cmd = r'C:\\Users\\Richard\\AppData\\Local\\Programs\\Tesseract-OCR\\tesseract.exe'
 
 # Click function 
 def do_click(nb: int, x: int, y: int):
@@ -40,11 +40,11 @@ def get_resource_price(prices_dct : dict):
     for item in items_lst:
 
         # clear research
-        do_click(1, 462, 162) 
+        do_click(1, 759, 268) 
         sleep(0.2)
 
         # click on searchbar
-        do_click(1, 350, 166) 
+        do_click(1, 555, 264) 
         sleep(0.2) 
 
         # write the name of the item in searchbar
@@ -52,11 +52,11 @@ def get_resource_price(prices_dct : dict):
         sleep(0.7) 
 
         # select item to diplay the price
-        do_click(1, 610, 184) 
+        do_click(1, 964, 303) 
         sleep(1)
 
         # take screenshot of average price (N K/u)       
-        im=ImageGrab.grab(bbox=(920,260,1025,290))
+        im=ImageGrab.grab(bbox=(1226, 340, 1365, 375))
         filename = f"{item}-{now}.png" 
         im.save(filename)
 
