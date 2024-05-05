@@ -48,8 +48,11 @@ def send_api_request(url: str, headers: dict) -> dict:
     try:
         if response.status_code == 200:
             data = response.json()
-            if data['total'] == 0:
+            
+            # When requesting an item based on name, the API returns a 'total' key with a value of 0 if it doesn't exist
+            if 'total' in data and data['total'] == 0:
                 raise ValueError("No item found with the given name and level.")
+            
             return data
 
         else:
