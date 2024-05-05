@@ -150,6 +150,5 @@ def main() -> None:
     if ingredients != None:
         print(ingredients)
 
-
 if __name__ == "__main__":
     sys.exit(main())
