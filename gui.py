@@ -17,7 +17,7 @@ def load_recipes(filename):
 def create_window():
     item_requested = list()
     root = Tk()
-    root.title("Dofus craft calculator")
+    root.title("Dofus Cooker")
     root.geometry("600x600")
     root.config(bg='#DFE7F2')
     style = ttk.Style(root)
