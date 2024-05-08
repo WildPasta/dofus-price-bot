@@ -1,18 +1,47 @@
+##########
+# Author: wildpasta
+# Description: GUI module that create the window for item selection
+# Usage: python guy.py
+# Example: python guy.py
+##########
+
 # Standard library imports
 import json
 import sys
 
 # Third party imports
-from tkinter import *
-from tkinter import messagebox
-from tkinter import ttk
+try:
+    from tkinter import ACTIVE, BOTTOM, END 
+    from tkinter import Label, Listbox, messagebox, Tk, ttk
+except ModuleNotFoundError as e:
+    print(f"ModuleNotFoundError: {e}")
+    print("Please install the required modules using the following command:")
+    print("pip install -r requirements.txt")
+    sys.exit(1)
 
-def load_recipes(filename):
-    with open(filename, 'r', encoding="utf-8") as f:
-        data = json.load(f)
-    names = [recipe['name'] for recipe in data]
-    names.sort()
-    return names
+def load_recipes(filename: str) -> list[str]:
+    """ 
+    purpose:
+        Load the recipes from a JSON file
+    input:
+        filename (str): The name of the JSON file
+    output:
+        names (list[str]): The list of recipe names
+    """
+
+    try:
+        with open(filename, 'r', encoding="utf-8") as f:
+            data = json.load(f)
+        names = [recipe['name'] for recipe in data]
+
+        return names.sort()
+    
+    except FileNotFoundError as e:
+        print(f"FileNotFoundError: {e}")
+        sys.exit(1)
+    except Exception as e:
+        print(f"Exception: {e}")
+        sys.exit(1)
 
 def create_window():
     item_requested = list()
@@ -113,41 +142,9 @@ def create_window():
 def ending_message():
     messagebox.showinfo("Finished", "The search has finished!")
 
-# from tkinter.ttk import Progressbar
-# from time import sleep
-# def create_progress_bar():
-#     root = Tk()
-#     root.title("Search progress")
-#     root.attributes('-topmost', True)
-#     root.attributes('-alpha', 0.8)
-
-#     screen_width = root.winfo_screenwidth()
-#     screen_height = root.winfo_screenheight()
-#     root.geometry(f"300x75+{screen_width-350}+{screen_height-200}")
-
-#     # Create a DoubleVar variable to store the progress value
-#     progress_value = DoubleVar()
-
-#     progress_bar = Progressbar(root, orient="horizontal", length=180, mode="determinate", variable=progress_value, maximum=100)
-#     progress_bar.pack(pady=10)
-
-#     progress_label = Label(root, text='')
-#     progress_label.pack()
-
-#     # Position the window in the bottom right corner
-#     def loop_function():
-#         for i in range(1, 101):
-#             sleep(1)
-#             progress_value.set(i)
-#             progress_str = str(int(progress_value.get())) + '%'
-#             progress_label.config(text=progress_str)
-
-#             progress_bar.update()
-#             progress_label.update()
-            
-#     # Call the loop function
-#     loop_function()
-#     root.mainloop()
+def main() -> None:
+    create_window()
+    ending_message()
 
 if __name__ == "__main__":
-    sys.exit(create_window())
+    sys.exit(main())
