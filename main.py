@@ -8,6 +8,7 @@
 # Python Standard Library Imports
 from datetime import datetime
 import json
+import os
 from random import uniform
 from time import sleep
 import sys
@@ -52,10 +53,10 @@ def do_click(x: int, y: int) -> None:
     y = int(y * height / 1440)  # Convert y coordinate to match screen resolution
     
     delay = round(uniform(0, 1), 2)
-    sleep(delay)  # between 2 and 3 s
+    sleep(delay)  # sleep between 2 and 3 seconds
 
-    pyautogui.moveTo(x, y)  # Move the mouse to the adjusted coordinates
-    delay = round(uniform(100, 300), 2) / 1000.0  # Convert to milliseconds
+    pyautogui.moveTo(x, y)
+    delay = round(uniform(100, 300), 2) / 1000.0
     sleep(delay)  # between 100 and 300 ms
     pyautogui.click()
 
@@ -69,29 +70,63 @@ def apply_filter_on_image(input_image_path, output_image_path):
     output:
         None
     """
-    input_image = Image.open(input_image_path)
 
-    # thresholding filter
-    threshold = 127  # luminosity threshold (0-255)
-    output_image = input_image.convert("L").point(lambda pixel: 255 if pixel > threshold else 0)
+    try:
+        input_image = Image.open(input_image_path)
 
-    output_image.save(output_image_path)
+        # thresholding filter
+        threshold = 127  # luminosity threshold (0-255)
+        output_image = input_image.convert("L").point(lambda pixel: 255 if pixel > threshold else 0)
 
-def ocr_determine_price(item_name: str, item_quantity: int, item_type: str, item_lvl: int) -> dict:
+        output_image.save(output_image_path)
+    except Exception as e:
+        print(f"Error when applying filter on screenshot: {e}")
+
+def process_image(screenshot: Image.Image, item_name: str) -> str:
     """
     purpose:
-        Use OCR to determine the price of an item in Dofus
+        Process the screenshot of the item's price
     input:
-        item_name (str)    : The name of the item to search for
-        item_quantity (int): The quantity of the item required
-        item_type (str)    : The type of the item
-        item_lvl (int)     : The level of the item
+        screenshot (Image): screenshot of the item's price
+        item_name (str): name of the item
     output:
-        dict: Dictionary containing the price of the item
+        item_current_price (str): price of the item
     """
 
     now = datetime.now()
     now = now.strftime("%Y%m%d%H%M%S")
+    os.makedirs("img", exist_ok=True)    
+    filename = f"img/{item_name.replace(" ", "_")}-{now}.png"
+    
+    screenshot.save(filename)
+
+    apply_filter_on_image(filename, filename + "_filtered.png")
+    
+    # process the screenshot
+    item_img = Image.open(filename)
+    text = pytesseract.image_to_string(item_img)
+    try:
+        item_current_price = int(''.join(filter(str.isdigit, text)))
+    except:
+        item_current_price = 1
+    
+    # Delete the screenshot
+    os.remove(filename)
+
+    return item_current_price
+
+def determine_price(item_name: str, item_quantity: int, item_type: str, item_lvl: int) -> dict:
+    """
+    purpose:
+        Use OCR to determine the price of an item in Dofus
+    input:
+        item_name (str)    : name of the item to search for
+        item_quantity (int): quantity of the item required
+        item_type (str)    : type of the item
+        item_lvl (int)     : level of the item
+    output:
+        dict: Dictionary containing the price of the item
+    """
 
     # click: clear research
     do_click(759, 268)
@@ -109,28 +144,10 @@ def ocr_determine_price(item_name: str, item_quantity: int, item_type: str, item
     do_click(856, 305)
     sleep(1)
 
-    ##############
-    ## PUT THAT IN A FUNCTION ##
     # take screenshot of average price
     # x_top_left, y_top_left, x_bottom_right, y_bottom_right
-    im = ImageGrab.grab(bbox=(1220, 350, 1375, 390))
-
-    filename = f"{item_name}-{now}.png"
-    im.save(filename)
-
-    apply_filter_on_image(filename, filename)
-    
-    # process the screenshot
-    item_img = Image.open(filename)
-    text = pytesseract.image_to_string(item_img)
-    try:
-        item_current_price = int(''.join(filter(str.isdigit, text)))
-    except:
-        item_current_price = 1
-    
-    # Delete the screenshot
-    # os.remove(filename)
-    ##############
+    screenshot = ImageGrab.grab(bbox=(1220, 350, 1375, 390))
+    item_current_price = process_image(screenshot, item_name)
 
     print(f"Price found ! 1 x {item_name} for {item_current_price} Kamas")
 
@@ -141,10 +158,10 @@ def parse_recipe_from_json(json_data: list, item_name: str) -> list:
     purpose:
         Parse the JSON data to retrieve the name and level of the specified item's recipe ingredients
     input:
-        json_data (list): The JSON data containing item information
-        item_name (str) : The name of the item to search for
+        json_data (list): JSON data containing item information
+        item_name (str) : name of the item to search for
     output:
-        list: List of dictionaries containing the name, quantity, and level of the recipe ingredients
+        list: list of dictionaries containing the name, quantity, and level of the recipe ingredients
     """
 
     parsed_recipe = []
@@ -166,8 +183,8 @@ def create_report(target: str, parsed_recipe: list) -> None:
     purpose:
         Create a report containing the recipe details for the target item
     input:
-        target (str)        : The name of the target item
-        parsed_recipe (list): List of dictionaries containing the recipe details
+        target (str)        : name of the target item
+        parsed_recipe (list): list of dictionaries containing the recipe details
     output:
         None
     """
@@ -218,7 +235,7 @@ def main():
             item_type = resource['type']
             item_lvl = resource['level']
 
-            price_info = ocr_determine_price(item_name, item_quantity, item_type, item_lvl)
+            price_info = determine_price(item_name, item_quantity, item_type, item_lvl)
             resource.update(price_info)
 
         # Create table report for the item
