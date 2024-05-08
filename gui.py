@@ -95,7 +95,7 @@ def create_window():
     added_items.pack(pady=10, side=BOTTOM)
 
 
-    items = load_recipes("recipe.json")
+    items = load_recipes("equipment_recipes.json")
 
     # Add the items to our list
     update(items)
