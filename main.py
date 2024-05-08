@@ -10,12 +10,13 @@ from pynput.keyboard import Key
 import pyscreenshot as ImageGrab
 from random import uniform
 from time import sleep
+import pyautogui
+import sys
 
 mouse = pynput.mouse.Controller()
 keyboard = pynput.keyboard.Controller()
 pytesseract.pytesseract.tesseract_cmd = r'C:\\Users\\Richard\\AppData\\Local\\Programs\\Tesseract-OCR\\tesseract.exe'
 
-# Click function 
 def do_click(nb: int, x: int, y: int):
     delay = round(uniform(0,1), 2)
     sleep(delay) # between 2 and 3 s
@@ -27,99 +28,149 @@ def do_click(nb: int, x: int, y: int):
         mouse.press(pybtn.left)
         mouse.release(pybtn.left)
 
-def get_resource_price(prices_dct : dict):
-    items_lst = prices_dct.keys()
-    
+def get_resource_price(item_name, item_quantity, item_lvl):
+  
     # 2000, 640 open HDV
     # do_click(1, 2000, 640) 
-    # sleep(5) # wait hdv in charging   
+    # sleep(5) # wait hdv is loading   
 
     now = datetime.now()
     now = now.strftime("%Y%m%d%H%M%S")
+    # clear research
+    do_click(1, 759, 268) 
+    sleep(0.2)
 
-    for item in items_lst:
+    # click on searchbar
+    do_click(1, 555, 264) 
+    sleep(0.2) 
 
-        # clear research
-        do_click(1, 759, 268) 
-        sleep(0.2)
+    # write the name of the item in searchbar
+    keyboard.type(item_name)
+    sleep(0.7) 
 
-        # click on searchbar
-        do_click(1, 555, 264) 
-        sleep(0.2) 
+    # select item to diplay the price
+    do_click(1, 856, 305) 
+    sleep(1)
 
-        # write the name of the item in searchbar
-        keyboard.type(item)
-        sleep(0.7) 
+    # take screenshot of average price (N K/u)    
+    # x_top_left, y_top_left, x_bottom_right, y_bottom_right   
+    im=ImageGrab.grab(bbox=(1226, 330, 1380, 400))
 
-        # select item to diplay the price
-        do_click(1, 964, 303) 
-        sleep(1)
+    filename = f"{item_name}-{now}.png" 
+    im.save(filename)
 
-        # take screenshot of average price (N K/u)       
-        im=ImageGrab.grab(bbox=(1226, 340, 1365, 375))
-        filename = f"{item}-{now}.png" 
-        im.save(filename)
+    # analyze the price
+    item_img = Image.open(filename)
+    text = pytesseract.image_to_string(item_img)
+    try:
+        item_current_price = int(''.join(filter(str.isdigit, text)))
+    except:         
+        item_current_price = 1
 
-        # analyze the price
-        item_img = Image.open(filename)
-        text = pytesseract.image_to_string(item_img)
-        try:
-            item_current_price = int(''.join(filter(str.isdigit, text)))
-        except:         
-            item_current_price = 1
+    # Delete the screenshot 
+    os.remove(filename)
 
-        # Delete the screenshot 
-        os.remove(filename)
+    print(f"Price found ! 1 x {item_name} for {item_current_price} Kamas")
 
-        prices_dct[item] = item_current_price
+    return {'price': item_current_price}
 
-        print(f"Price found ! 1 x {item} for {item_current_price} Kamas")    
+def parse_recipe_from_json(json_data: list, item_name: str) -> list:
+    """
+    purpose:
+        Parse the JSON data to retrieve the name and level of the specified item's recipe ingredients
+    input:
+        json_data (list): The JSON data containing item information
+        item_name (str) : The name of the item to search for
+    output:
+        list: List of dictionaries containing the name, quantity, and level of the recipe ingredients
+    """
 
-def calculate_raw_cost(recipe_dct : dict, prices_dct : dict):
-    # calculating raw materials cost
-    raw_cost = 0
-    for item in recipe_dct.keys():
-        item_cost = recipe_dct[item] * prices_dct[item]
-        raw_cost += item_cost
-    return raw_cost
+    parsed_recipe = []
+    for item_data in json_data:
+        if item_data['name'] == item_name:
+            for recipe_item in item_data.get('recipe', []):
+                for ingredient_name, ingredient_info in recipe_item.items():
+                    parsed_recipe.append({
+                        'name': ingredient_name,
+                        'type': ingredient_info['type'],
+                        'quantity': int(ingredient_info['quantity']),
+                        'level': int(ingredient_info['lvl'])
+                    })
+            break  # Exit loop once the item's recipe is found
+    return parsed_recipe
+
+def ocr_resource_price(item_name: str, item_quantity: int, item_lvl: int):
+    # print(f"Name: {item_name}")
+    # print(f"Quantity: {item_quantity}")
+    # print(f"Level: {item_lvl}")
+
+    price_found = 33
+    return {'price': price_found}
+
+def create_report(target: str, parsed_recipe: list) -> None:
+    """
+    purpose:
+        Create a report containing the recipe details for the target item
+    input:
+        target (str)        : The name of the target item
+        parsed_recipe (list): List of dictionaries containing the recipe details
+    output:
+        None
+    """
+
+    table = PrettyTable()
+    table.field_names = [target, "Level", "Quantity", "Price", "Total Price"]
+    total_price_all_items = 0 
+
+    for resource in parsed_recipe:
+        item_name = resource['name']
+        item_lvl = resource['level']
+        item_quantity = resource['quantity']
+        item_price = resource['price']
+
+        total_price = item_quantity * item_price
+        total_price_all_items += total_price
+
+        table.add_row([item_name, item_lvl, item_quantity, item_price, total_price])
+
+    # Add 20% tax
+    tax = round(total_price_all_items * 0.20)
+    total_price_with_tax = total_price_all_items + tax
+
+    # Print total price with tax
+    table.add_row(["-" * 10, "-" * 10, "-" * 10, "-" * 10, "-" * 10])
+    table.add_row(["Total Price (w/ taxes)", "", "", "", total_price_with_tax])
+
+    print(table)
 
 def main():
 
-    target = create_window()
-    table = PrettyTable()
-    table.field_names = ["Item", "Raw cost + taxes"]
-    table.align['Item'] = "l"
-    table.align['Raw cost + taxes'] = "l"
+    # Pop the GUI to select items
+    target_lst = create_window()
 
-    with open("recipe.json", "r", encoding="utf-8") as file:
+    # Load JSON data from file
+    with open("equipment_recipes.json", "r", encoding="utf-8") as file:
         data = json.load(file)
 
-    for item in data:
-        if item['name'] in target:
-            prices_dct = dict()
-            recipe_dct = dict()
+    target_lst = ["Ceinture du Piou Bleu"]
+    for target in target_lst:
+        parsed_recipe = parse_recipe_from_json(data, target)
+        if not parsed_recipe:
+            sys.exit("No recipe found. Exiting...")
+        
+        for resource in parsed_recipe:
+            item_name = resource['name']
+            item_quantity = resource['quantity']
+            item_lvl = resource['level']
 
-            selling_item_name = item['name']
-            recipe_lst = item['recipe']        
+            # price_info = ocr_resource_price(item_name, item_quantity, item_lvl)
+            price_info = get_resource_price(item_name, item_quantity, item_lvl)
+            resource.update(price_info)
 
-            for item_dct in recipe_lst:
-                name = item_dct['name']
-                quantity = item_dct['quantity']
+        # Create table report for the item
+        create_report(target, parsed_recipe)
 
-                recipe_dct[name] = quantity
-                prices_dct[name] = None
-
-            get_resource_price(prices_dct)
-
-            # calculating raw materials cost    
-            raw_cost = calculate_raw_cost(recipe_dct, prices_dct)
-            taxes = 0.02 * raw_cost
-
-            net_cost = raw_cost + taxes
-            table.add_row([f"{selling_item_name}", f"{net_cost:.0f} kamas"])               
-    
     ending_message()
-    print(table)
 
 if __name__ == "__main__":  
     main()
