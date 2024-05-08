@@ -7,8 +7,14 @@
 import sys
 
 # Third-party libraries
-import requests
-from urllib.parse import quote
+try:
+    import requests
+    from urllib.parse import quote
+except ModuleNotFoundError as e:
+    print(f"ModuleNotFoundError: {e}")
+    print("Please install the required modules using the following command:")
+    print("pip install -r requirements.txt")
+    sys.exit(1)
 
 def get_user_input() -> tuple:
     """ 

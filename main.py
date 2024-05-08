@@ -1,17 +1,35 @@
-import os
-import pynput
-import pytesseract
+##########
+# Author: wildpasta
+# Description: Core of Dofus Cooker, handle GUI, autoclick, OCR, and JSON parsing
+# Usage: python main.py
+# Example: python main.py
+##########
+
+# Python Standard Library Imports
 from datetime import datetime
-from gui import *
-from PIL import Image, ImageFilter
-from prettytable import PrettyTable
-from pynput.mouse import Button as pybtn
-from pynput.keyboard import Key
-import pyscreenshot as ImageGrab
+import json
 from random import uniform
 from time import sleep
-import pyautogui
 import sys
+
+# Third-Party Imports
+try:
+    from PIL import Image, ImageFilter
+    from prettytable import PrettyTable
+    from pynput.keyboard import Key
+    from pynput.mouse import Button as pybtn
+    import pyautogui
+    import pynput
+    import pytesseract
+    import pyscreenshot as ImageGrab
+except ModuleNotFoundError as e:
+    print(f"ModuleNotFoundError: {e}")
+    print("Please install the required modules using the following command:")
+    print("pip install -r requirements.txt")
+    sys.exit(1)
+
+# Local/Application Specific Imports
+from gui import create_window, ending_message
 
 mouse = pynput.mouse.Controller()
 keyboard = pynput.keyboard.Controller()
@@ -191,7 +209,8 @@ def main():
     for target in target_lst:
         parsed_recipe = parse_recipe_from_json(data, target)
         if not parsed_recipe:
-            sys.exit("No recipe found. Exiting...")
+            print("No recipe found. Exiting...")
+            sys.exit(1)
         
         for resource in parsed_recipe:
             item_name = resource['name']
