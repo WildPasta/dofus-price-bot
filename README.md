@@ -10,7 +10,8 @@ Tested with Dofus 2.71.6.8
 
 # TODO
 
-- [ ] Adapt screen size to any client
+- [X] Adapt screen size to any client
+- [X] Apply image filter for better OCR processing
 - [ ] Add item level selection to reduce errors
 - [ ] Clean imported library
 - [ ] Create a dedicated image folder

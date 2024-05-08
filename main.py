@@ -3,7 +3,7 @@ import pynput
 import pytesseract
 from datetime import datetime
 from gui import *
-from PIL import Image
+from PIL import Image, ImageFilter
 from prettytable import PrettyTable
 from pynput.mouse import Button as pybtn
 from pynput.keyboard import Key
@@ -17,58 +17,102 @@ mouse = pynput.mouse.Controller()
 keyboard = pynput.keyboard.Controller()
 pytesseract.pytesseract.tesseract_cmd = r'C:\\Users\\Richard\\AppData\\Local\\Programs\\Tesseract-OCR\\tesseract.exe'
 
-def do_click(nb: int, x: int, y: int):
-    delay = round(uniform(0,1), 2)
-    sleep(delay) # between 2 and 3 s
+def do_click(x: int, y: int) -> None:
+    """
+    purpose:
+        Perform a mouse click at the specified coordinates
+    input:
+        nb (int): Number of clicks to perform
+        x (int) : X coordinate of the click
+        y (int) : Y coordinate of the click
+    output:
+        None
+    """
 
-    for _ in range(nb):
-        mouse.position = (x, y)
-        delay = round(uniform(100,300), 2)/1000000.0
-        sleep(delay) # between 100 and 300 ms
-        mouse.press(pybtn.left)
-        mouse.release(pybtn.left)
+    width, height = pyautogui.size()  # Get the screen resolution
+    x = int(x * width / 2560)  # Convert x coordinate to match screen resolution
+    y = int(y * height / 1440)  # Convert y coordinate to match screen resolution
+    
+    delay = round(uniform(0, 1), 2)
+    sleep(delay)  # between 2 and 3 s
 
-def get_resource_price(item_name, item_quantity, item_lvl):
-  
-    # 2000, 640 open HDV
-    # do_click(1, 2000, 640) 
-    # sleep(5) # wait hdv is loading   
+    pyautogui.moveTo(x, y)  # Move the mouse to the adjusted coordinates
+    delay = round(uniform(100, 300), 2) / 1000.0  # Convert to milliseconds
+    sleep(delay)  # between 100 and 300 ms
+    pyautogui.click()
+
+def apply_filter_on_image(input_image_path, output_image_path):
+    """
+    purpose:
+        Apply a thresholding filter on an image
+    input:
+        input_image_path (str): Path to the input image
+        output_image_path (str): Path to save the output image
+    output:
+        None
+    """
+    input_image = Image.open(input_image_path)
+
+    # thresholding filter
+    threshold = 127  # luminosity threshold (0-255)
+    output_image = input_image.convert("L").point(lambda pixel: 255 if pixel > threshold else 0)
+
+    output_image.save(output_image_path)
+
+def ocr_determine_price(item_name: str, item_quantity: int, item_type: str, item_lvl: int) -> dict:
+    """
+    purpose:
+        Use OCR to determine the price of an item in Dofus
+    input:
+        item_name (str)    : The name of the item to search for
+        item_quantity (int): The quantity of the item required
+        item_type (str)    : The type of the item
+        item_lvl (int)     : The level of the item
+    output:
+        dict: Dictionary containing the price of the item
+    """
 
     now = datetime.now()
     now = now.strftime("%Y%m%d%H%M%S")
-    # clear research
-    do_click(1, 759, 268) 
+
+    # click: clear research
+    do_click(759, 268)
     sleep(0.2)
 
-    # click on searchbar
-    do_click(1, 555, 264) 
-    sleep(0.2) 
+    # click: searchbar
+    do_click(555, 264)
+    sleep(0.2)
 
-    # write the name of the item in searchbar
+    # keyboard: write the item name in searchbar
     keyboard.type(item_name)
-    sleep(0.7) 
+    sleep(0.7)
 
-    # select item to diplay the price
-    do_click(1, 856, 305) 
+    # click: first item to unwrap prices
+    do_click(856, 305)
     sleep(1)
 
-    # take screenshot of average price (N K/u)    
-    # x_top_left, y_top_left, x_bottom_right, y_bottom_right   
-    im=ImageGrab.grab(bbox=(1226, 330, 1380, 400))
+    ##############
+    ## PUT THAT IN A FUNCTION ##
+    # take screenshot of average price
+    # x_top_left, y_top_left, x_bottom_right, y_bottom_right
+    im = ImageGrab.grab(bbox=(1220, 350, 1375, 390))
 
-    filename = f"{item_name}-{now}.png" 
+    filename = f"{item_name}-{now}.png"
     im.save(filename)
 
-    # analyze the price
+    apply_filter_on_image(filename, filename)
+    
+    # process the screenshot
     item_img = Image.open(filename)
     text = pytesseract.image_to_string(item_img)
     try:
         item_current_price = int(''.join(filter(str.isdigit, text)))
-    except:         
+    except:
         item_current_price = 1
-
-    # Delete the screenshot 
-    os.remove(filename)
+    
+    # Delete the screenshot
+    # os.remove(filename)
+    ##############
 
     print(f"Price found ! 1 x {item_name} for {item_current_price} Kamas")
 
@@ -98,14 +142,6 @@ def parse_recipe_from_json(json_data: list, item_name: str) -> list:
                     })
             break  # Exit loop once the item's recipe is found
     return parsed_recipe
-
-def ocr_resource_price(item_name: str, item_quantity: int, item_lvl: int):
-    # print(f"Name: {item_name}")
-    # print(f"Quantity: {item_quantity}")
-    # print(f"Level: {item_lvl}")
-
-    price_found = 33
-    return {'price': price_found}
 
 def create_report(target: str, parsed_recipe: list) -> None:
     """
@@ -152,7 +188,6 @@ def main():
     with open("equipment_recipes.json", "r", encoding="utf-8") as file:
         data = json.load(file)
 
-    target_lst = ["Ceinture du Piou Bleu"]
     for target in target_lst:
         parsed_recipe = parse_recipe_from_json(data, target)
         if not parsed_recipe:
@@ -161,10 +196,10 @@ def main():
         for resource in parsed_recipe:
             item_name = resource['name']
             item_quantity = resource['quantity']
+            item_type = resource['type']
             item_lvl = resource['level']
 
-            # price_info = ocr_resource_price(item_name, item_quantity, item_lvl)
-            price_info = get_resource_price(item_name, item_quantity, item_lvl)
+            price_info = ocr_determine_price(item_name, item_quantity, item_type, item_lvl)
             resource.update(price_info)
 
         # Create table report for the item
