@@ -1,3 +1,6 @@
 search.py
 __pycache__
 *.png
+venv/
+test.py
+all_recipes_example.json
