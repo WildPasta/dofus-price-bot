@@ -30,7 +30,7 @@ except ModuleNotFoundError as e:
     sys.exit(1)
 
 # Local/Application Specific Imports
-from gui import create_window, ending_message
+from modules.gui import create_window, ending_message
 
 mouse = pynput.mouse.Controller()
 keyboard = pynput.keyboard.Controller()
@@ -96,7 +96,7 @@ def process_image(screenshot: Image.Image, item_name: str) -> str:
     now = datetime.now()
     now = now.strftime("%Y%m%d%H%M%S")
     os.makedirs("img", exist_ok=True)    
-    filename = f"img/{item_name.replace(" ", "_")}-{now}.png"
+    filename = f"img/{item_name}-{now}.png"
     
     screenshot.save(filename)
 
@@ -215,12 +215,11 @@ def create_report(target: str, parsed_recipe: list) -> None:
     print(table)
 
 def main():
-
     # Pop the GUI to select items
     target_lst = create_window()
 
     # Load JSON data from file
-    with open("equipment_recipes.json", "r", encoding="utf-8") as file:
+    with open("res/equipment_recipes.json", "r", encoding="utf-8") as file:
         data = json.load(file)
 
     for target in target_lst:

@@ -33,7 +33,7 @@ def load_recipes(filename: str) -> list[str]:
         with open(filename, 'r', encoding="utf-8") as f:
             data = json.load(f)
         names = [recipe['name'] for recipe in data]
-
+        
         return names.sort()
     
     except FileNotFoundError as e:
@@ -123,8 +123,11 @@ def create_window():
     added_items = Listbox(root, height=5, width=50)
     added_items.pack(pady=10, side=BOTTOM)
 
+    import os
+    print(os.listdir("res"))
+    print()
 
-    items = load_recipes("equipment_recipes.json")
+    items = load_recipes("res/equipment_recipes.json")
 
     # Add the items to our list
     update(items)
