@@ -48,17 +48,21 @@ def do_click(x: int, y: int) -> None:
         None
     """
 
-    width, height = pyautogui.size()  # Get the screen resolution
-    x = int(x * width / 2560)  # Convert x coordinate to match screen resolution
-    y = int(y * height / 1440)  # Convert y coordinate to match screen resolution
-    
-    delay = round(uniform(0, 1), 2)
-    sleep(delay)  # sleep between 2 and 3 seconds
+    try:
+        width, height = pyautogui.size()  # Get the screen resolution
+        x = int(x * width / 2560)  # Convert x coordinate to match screen resolution
+        y = int(y * height / 1440)  # Convert y coordinate to match screen resolution
+        
+        delay = round(uniform(0, 1), 2)
+        sleep(delay)  # sleep between 2 and 3 seconds
 
-    pyautogui.moveTo(x, y)
-    delay = round(uniform(100, 300), 2) / 1000.0
-    sleep(delay)  # between 100 and 300 ms
-    pyautogui.click()
+        pyautogui.moveTo(x, y)
+        delay = round(uniform(100, 300), 2) / 1000.0
+        sleep(delay)  # between 100 and 300 ms
+        pyautogui.click()
+
+    except Exception as e:
+        print(f"Error when clicking: {e}")
 
 def apply_filter_on_image(input_image_path, output_image_path):
     """
@@ -79,6 +83,7 @@ def apply_filter_on_image(input_image_path, output_image_path):
         output_image = input_image.convert("L").point(lambda pixel: 255 if pixel > threshold else 0)
 
         output_image.save(output_image_path)
+
     except Exception as e:
         print(f"Error when applying filter on screenshot: {e}")
 
@@ -93,27 +98,34 @@ def process_image(screenshot: Image.Image, item_name: str) -> str:
         item_current_price (str): price of the item
     """
 
-    now = datetime.now()
-    now = now.strftime("%Y%m%d%H%M%S")
-    os.makedirs("img", exist_ok=True)    
-    filename = f"img/{item_name}-{now}.png"
-    
-    screenshot.save(filename)
-
-    apply_filter_on_image(filename, filename + "_filtered.png")
-    
-    # process the screenshot
-    item_img = Image.open(filename)
-    text = pytesseract.image_to_string(item_img)
     try:
-        item_current_price = int(''.join(filter(str.isdigit, text)))
-    except:
-        item_current_price = 1
-    
-    # Delete the screenshot
-    os.remove(filename)
+        # Save the screenshot within img folder
+        timestamp = datetime.now()
+        timestamp = timestamp.strftime("%Y%m%d%H%M%S")
+        os.makedirs("img", exist_ok=True)    
 
-    return item_current_price
+        filename = f"img/{item_name}-{timestamp}.png"
+        screenshot.save(filename)
+
+        filtered_filename = f"img/{item_name}-{timestamp}_filtered.png"
+        apply_filter_on_image(filename, filtered_filename)
+        
+        # process the screenshot
+        item_img = Image.open(filtered_filename)
+        text = pytesseract.image_to_string(item_img)
+        try:
+            item_current_price = int(''.join(filter(str.isdigit, text)))
+        except:
+            item_current_price = 1
+        
+        # Delete the screenshot
+        os.remove(filename)
+        os.remove(filtered_filename)
+
+        return item_current_price
+    
+    except Exception as e:
+        print(f"Error with OCR recognition: {e}")
 
 def determine_price(item_name: str, item_quantity: int, item_type: str, item_lvl: int) -> dict:
     """
@@ -164,19 +176,23 @@ def parse_recipe_from_json(json_data: list, item_name: str) -> list:
         list: list of dictionaries containing the name, quantity, and level of the recipe ingredients
     """
 
-    parsed_recipe = []
-    for item_data in json_data:
-        if item_data['name'] == item_name:
-            for recipe_item in item_data.get('recipe', []):
-                for ingredient_name, ingredient_info in recipe_item.items():
-                    parsed_recipe.append({
-                        'name': ingredient_name,
-                        'type': ingredient_info['type'],
-                        'quantity': int(ingredient_info['quantity']),
-                        'level': int(ingredient_info['lvl'])
-                    })
-            break  # Exit loop once the item's recipe is found
-    return parsed_recipe
+    try:
+        parsed_recipe = []
+        for item_data in json_data:
+            if item_data['name'] == item_name:
+                for recipe_item in item_data.get('recipe', []):
+                    for ingredient_name, ingredient_info in recipe_item.items():
+                        parsed_recipe.append({
+                            'name': ingredient_name,
+                            'type': ingredient_info['type'],
+                            'quantity': int(ingredient_info['quantity']),
+                            'level': int(ingredient_info['lvl'])
+                        })
+                break  # Exit loop once the item's recipe is found
+        return parsed_recipe
+    
+    except Exception as e:
+        print(f"Error when parsing recipe from JSON: {e}")
 
 def create_report(target: str, parsed_recipe: list) -> None:
     """
