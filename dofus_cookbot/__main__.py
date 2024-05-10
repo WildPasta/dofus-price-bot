@@ -7,6 +7,7 @@
 
 # Python Standard Library Imports
 from datetime import datetime
+from importlib.resources import files
 import json
 import os
 from random import uniform
@@ -209,34 +210,40 @@ def create_report(target: str, parsed_recipe: list) -> None:
     table.field_names = [target, "Level", "Quantity", "Price", "Total Price"]
     total_price_all_items = 0 
 
-    for resource in parsed_recipe:
-        item_name = resource['name']
-        item_lvl = resource['level']
-        item_quantity = resource['quantity']
-        item_price = resource['price']
+    try:
+        for resource in parsed_recipe:
+            item_name = resource['name']
+            item_lvl = resource['level']
+            item_quantity = resource['quantity']
+            item_price = resource['price']
 
-        total_price = item_quantity * item_price
-        total_price_all_items += total_price
+            total_price = item_quantity * item_price
+            total_price_all_items += total_price
 
-        table.add_row([item_name, item_lvl, item_quantity, item_price, total_price])
+            table.add_row([item_name, item_lvl, item_quantity, item_price, total_price])
 
-    # Add 20% tax
-    tax = round(total_price_all_items * 0.20)
-    total_price_with_tax = total_price_all_items + tax
+        # Add 20% tax
+        tax = round(total_price_all_items * 0.20)
+        total_price_with_tax = total_price_all_items + tax
 
-    # Print total price with tax
-    table.add_row(["-" * 10, "-" * 10, "-" * 10, "-" * 10, "-" * 10])
-    table.add_row(["Total Price (w/ taxes)", "", "", "", total_price_with_tax])
+        # Print total price with tax
+        table.add_row(["-" * 10, "-" * 10, "-" * 10, "-" * 10, "-" * 10])
+        table.add_row(["Total Price (w/ taxes)", "", "", "", total_price_with_tax])
 
-    print(table)
+        print(table)
+    
+    except TypeError:
+        print("Error when calculating price")
+    except Exception as e:
+        print(f"Error when creating report: {e}")
 
 def main():
     # Pop the GUI to select items
     target_lst = create_window()
 
     # Load JSON data from file
-    recipe_path = "res/equipment_recipes.json"
-    with open(recipe_path, "r", encoding="utf-8") as f:
+    recipe_file_path = "equipment_recipes.json"
+    with files("dofus_cookbot.res").joinpath(recipe_file_path).open(encoding="utf-8") as f:
         data = json.load(f)
 
     for target in target_lst:
