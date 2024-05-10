@@ -19,7 +19,7 @@ except ModuleNotFoundError as e:
     print("pip install -r requirements.txt")
     sys.exit(1)
 
-def load_recipes(filename: str) -> list[str]:
+def get_item_names(filename: str) -> list[str]:
     """ 
     purpose:
         Load the recipes from a JSON file
@@ -33,8 +33,9 @@ def load_recipes(filename: str) -> list[str]:
         with open(filename, 'r', encoding="utf-8") as f:
             data = json.loads(f.read())
         names = [recipe['name'] for recipe in data]
+        names.sort()
         
-        return names.sort()
+        return names
     
     except FileNotFoundError as e:
         print(f"FileNotFoundError: {e}")
@@ -123,7 +124,8 @@ def create_window():
     added_items = Listbox(root, height=5, width=50)
     added_items.pack(pady=10, side=BOTTOM)
 
-    items = load_recipes("res/equipment_recipes.json")
+    recipe_path = "res/equipment_recipes.json"
+    items = get_item_names(recipe_path)
 
     # Add the items to our list
     update(items)
