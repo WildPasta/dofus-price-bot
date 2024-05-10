@@ -128,14 +128,17 @@ def create_window():
     recipe_file_path = "equipment_recipes.json"
     items = get_item_names(recipe_file_path)
 
-    # Add the items to our list
-    update(items)
+    try:
+        # Add the items to our list
+        update(items)
 
-    # Bind the listbox on click
-    global_item_list.bind("<<ListboxSelect>>", fillout)
+        # Bind the listbox on click
+        global_item_list.bind("<<ListboxSelect>>", fillout)
 
-    # Create a binding on the entry box
-    my_entry.bind("<KeyRelease>", check)
+        # Create a binding on the entry box
+        my_entry.bind("<KeyRelease>", check)
+    except Exception as e:
+        print(f"Error in GUI display: {e}")
 
     root.mainloop()
     
