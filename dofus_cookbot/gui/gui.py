@@ -31,7 +31,7 @@ def load_recipes(filename: str) -> list[str]:
 
     try:
         with open(filename, 'r', encoding="utf-8") as f:
-            data = json.load(f)
+            data = json.loads(f.read())
         names = [recipe['name'] for recipe in data]
         
         return names.sort()
@@ -122,10 +122,6 @@ def create_window():
 
     added_items = Listbox(root, height=5, width=50)
     added_items.pack(pady=10, side=BOTTOM)
-
-    import os
-    print(os.listdir("res"))
-    print()
 
     items = load_recipes("res/equipment_recipes.json")
 
