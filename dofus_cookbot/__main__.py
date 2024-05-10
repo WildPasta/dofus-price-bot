@@ -30,7 +30,7 @@ except ModuleNotFoundError as e:
     sys.exit(1)
 
 # Local/Application Specific Imports
-from modules.gui import create_window, ending_message
+from gui.gui import create_window, ending_message
 
 mouse = pynput.mouse.Controller()
 keyboard = pynput.keyboard.Controller()
@@ -219,8 +219,9 @@ def main():
     target_lst = create_window()
 
     # Load JSON data from file
-    with open("res/equipment_recipes.json", "r", encoding="utf-8") as file:
-        data = json.load(file)
+    recipe_path = "res/equipment_recipes.json"
+    with open(recipe_path, "r", encoding="utf-8") as f:
+        data = json.load(f)
 
     for target in target_lst:
         parsed_recipe = parse_recipe_from_json(data, target)
