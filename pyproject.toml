@@ -17,7 +17,7 @@ dependencies = [
     "pytesseract==0.3.10",
     "Requests==2.31.0"
 ]
-requires-python = ">=3.10"
+requires-python = ">=3.9"
 
 [project.scripts]
 dofus_cookbot = "dofus_cookbot.__main__:main"
