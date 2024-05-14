@@ -102,13 +102,12 @@ def process_image(screenshot: Image.Image, item_name: str) -> str:
     try:
         # Save the screenshot within img folder
         timestamp = datetime.now()
-        timestamp = timestamp.strftime("%Y%m%d%H%M%S")
-        os.makedirs("img", exist_ok=True)    
+        timestamp = timestamp.strftime("%Y%m%d%H%M%S") 
 
-        filename = f"img/{item_name}-{timestamp}.png"
+        filename = f"{item_name}-{timestamp}.png"
         screenshot.save(filename)
 
-        filtered_filename = f"img/{item_name}-{timestamp}_filtered.png"
+        filtered_filename = f"{item_name}-{timestamp}_filtered.png"
         apply_filter_on_image(filename, filtered_filename)
         
         # process the screenshot
@@ -244,7 +243,7 @@ def main():
     # Load JSON data from file
     recipe_file_path = "equipment_recipes.json"
     with files("dofus_cookbot.res").joinpath(recipe_file_path).open(encoding="utf-8") as f:
-        data = json.load(f)
+            data = json.loads(f.read())
 
     for target in target_lst:
         parsed_recipe = parse_recipe_from_json(data, target)
