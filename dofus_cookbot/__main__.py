@@ -35,7 +35,7 @@ from gui.gui import create_window, ending_message
 
 mouse = pynput.mouse.Controller()
 keyboard = pynput.keyboard.Controller()
-pytesseract.pytesseract.tesseract_cmd = r'C:\\Users\\Richard\\AppData\\Local\\Programs\\Tesseract-OCR\\tesseract.exe'
+pytesseract.pytesseract.tesseract_cmd = r'C:\\Users\\user\\AppData\\Local\\Programs\\Tesseract-OCR\\tesseract.exe'
 
 def do_click(x: int, y: int) -> None:
     """
