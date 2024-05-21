@@ -1,8 +1,8 @@
 ##########
 # Author: wildpasta
 # Description: Core of Dofus Cooker, handle GUI, autoclick, OCR, and JSON parsing
-# Usage: python main.py
-# Example: python main.py
+# Usage: python __main__.py
+# Example: python __main__.py
 ##########
 
 # Python Standard Library Imports

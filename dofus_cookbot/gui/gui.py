@@ -1,8 +1,6 @@
 ##########
 # Author: wildpasta
 # Description: GUI module that create the window for item selection
-# Usage: python guy.py
-# Example: python guy.py
 ##########
 
 # Standard library imports
