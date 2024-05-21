@@ -17,6 +17,9 @@
 
 ## Overview
 
+**Disclaimer:** this is a personnal project made with little Python knowledge. 
+For better results, I recommend looking towards MITM Dofus bots.
+
 This bot is a basic autoclicker that retrieve the price to craft an item.
 It uses Tesseract OCR to read the price.
 The goal is to check if it's worth it to buy every single material to craft the item or to buy it straigth on.
@@ -49,22 +52,23 @@ python3 -m venv venv
 source .\venv\Scripts\Activate.ps1
 python3 -m pip install build
 python3 -m build
+python3 -m pip install .\dist\dofus_cookbot-1.1.0-py3-none-any.whl
 python3 -m dofus_cookbot
 ```
 
 ## Workflow
 
-- Open the Market Place windows
-- Dofus cooker pops a GUI where you can select the items you want to craft
-- Once you're done, click OK
-- Wait until the bot end the clicking actions
-- Check the price in the CLI interface where you started the bot
+1. Open the Market Place windows
+2. Dofus cooker pops a GUI where you can select the items you want to craft
+3. Once you're done, click OK
+4. Wait until the bot end the clicking actions
+5. Display ressource price in CLI
 
 ## Features
 
 - Auto clicker
 - API calls 
-- Intuitive GUI
+- Easy to use GUI
 - Mouse position finder
 - OCR
 
@@ -124,6 +128,13 @@ The workaround here is that you can fetch items data with `utils\api\api.py` and
     }
 ]
 ```
+
+### Run without building
+
+It is possible to run the program without building it.
+You first have to `python3 -m pip install -r reequirements.txt`.
+
+Then change value of `recipe_file_path` in both `dofus_cookbot\__main__.py` and `dofus_cookbot\gui\gui.py` to match location of `dofus_cookbot\res\equipment_recipes.json`.
 
 ### Compatibility
 
