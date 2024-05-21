@@ -39,6 +39,8 @@ The goal is to check if it's worth it to buy every single material to craft the 
 
 ## Quick start
 
+> It works only with full screen client on your primary screen
+
 Download and install [Tesseract OCR](https://tesseract-ocr.github.io/tessdoc/Downloads.html) from their website or [direct download](https://sourceforge.net/projects/tesseract-ocr-alt/files/tesseract-ocr-setup-3.02.02.exe/download).
 
 ```
