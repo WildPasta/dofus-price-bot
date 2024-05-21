@@ -65,29 +65,6 @@ def do_click(x: int, y: int) -> None:
     except Exception as e:
         print(f"Error when clicking: {e}")
 
-def apply_filter_on_image(input_image_path, output_image_path):
-    """
-    purpose:
-        Apply a thresholding filter on an image
-    input:
-        input_image_path (str): Path to the input image
-        output_image_path (str): Path to save the output image
-    output:
-        None
-    """
-
-    try:
-        input_image = Image.open(input_image_path)
-
-        # thresholding filter
-        threshold = 127  # luminosity threshold (0-255)
-        output_image = input_image.convert("L").point(lambda pixel: 255 if pixel > threshold else 0)
-
-        output_image.save(output_image_path)
-
-    except Exception as e:
-        print(f"Error when applying filter on screenshot: {e}")
-
 def process_image(screenshot: Image.Image, item_name: str) -> str:
     """
     purpose:
@@ -106,12 +83,9 @@ def process_image(screenshot: Image.Image, item_name: str) -> str:
 
         filename = f"{item_name}-{timestamp}.png"
         screenshot.save(filename)
-
-        filtered_filename = f"{item_name}-{timestamp}_filtered.png"
-        apply_filter_on_image(filename, filtered_filename)
         
         # process the screenshot
-        item_img = Image.open(filtered_filename)
+        item_img = Image.open(filename)
         text = pytesseract.image_to_string(item_img)
         try:
             item_current_price = int(''.join(filter(str.isdigit, text)))
@@ -120,7 +94,6 @@ def process_image(screenshot: Image.Image, item_name: str) -> str:
         
         # Delete the screenshot
         os.remove(filename)
-        os.remove(filtered_filename)
 
         return item_current_price
     
@@ -141,11 +114,11 @@ def determine_price(item_name: str, item_quantity: int, item_type: str, item_lvl
     """
 
     # click: clear research
-    do_click(759, 268)
-    sleep(0.2)
+    do_click(753, 265)
+    sleep(0.4)
 
     # click: searchbar
-    do_click(555, 264)
+    do_click(524, 265)
     sleep(0.2)
 
     # keyboard: write the item name in searchbar
@@ -153,12 +126,19 @@ def determine_price(item_name: str, item_quantity: int, item_type: str, item_lvl
     sleep(0.7)
 
     # click: first item to unwrap prices
-    do_click(856, 305)
+    do_click(845, 299)
     sleep(1)
 
     # take screenshot of average price
     # x_top_left, y_top_left, x_bottom_right, y_bottom_right
-    screenshot = ImageGrab.grab(bbox=(1220, 350, 1375, 390))
+    width, height = pyautogui.size()
+    bbox = (
+        int(1220 * width / 2560),
+        int(350 * height / 1440),
+        int(1370 * width / 2560),
+        int(380 * height / 1440)
+    )
+    screenshot = ImageGrab.grab(bbox=bbox)
     item_current_price = process_image(screenshot, item_name)
 
     print(f"Price found ! 1 x {item_name} for {item_current_price} Kamas")
