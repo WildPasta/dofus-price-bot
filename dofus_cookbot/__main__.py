@@ -1,12 +1,13 @@
 ##########
 # Author: wildpasta
 # Description: Core of Dofus Cooker, handle GUI, autoclick, OCR, and JSON parsing
-# Usage: python main.py
-# Example: python main.py
+# Usage: python __main__.py
+# Example: python __main__.py
 ##########
 
 # Python Standard Library Imports
 from datetime import datetime
+from importlib.resources import files
 import json
 import os
 from random import uniform
@@ -30,11 +31,11 @@ except ModuleNotFoundError as e:
     sys.exit(1)
 
 # Local/Application Specific Imports
-from gui import create_window, ending_message
+from gui.gui import create_window, ending_message
 
 mouse = pynput.mouse.Controller()
 keyboard = pynput.keyboard.Controller()
-pytesseract.pytesseract.tesseract_cmd = r'C:\\Users\\Richard\\AppData\\Local\\Programs\\Tesseract-OCR\\tesseract.exe'
+pytesseract.pytesseract.tesseract_cmd = r'C:\\Users\\user\\AppData\\Local\\Programs\\Tesseract-OCR\\tesseract.exe'
 
 def do_click(x: int, y: int) -> None:
     """
@@ -48,39 +49,21 @@ def do_click(x: int, y: int) -> None:
         None
     """
 
-    width, height = pyautogui.size()  # Get the screen resolution
-    x = int(x * width / 2560)  # Convert x coordinate to match screen resolution
-    y = int(y * height / 1440)  # Convert y coordinate to match screen resolution
-    
-    delay = round(uniform(0, 1), 2)
-    sleep(delay)  # sleep between 2 and 3 seconds
-
-    pyautogui.moveTo(x, y)
-    delay = round(uniform(100, 300), 2) / 1000.0
-    sleep(delay)  # between 100 and 300 ms
-    pyautogui.click()
-
-def apply_filter_on_image(input_image_path, output_image_path):
-    """
-    purpose:
-        Apply a thresholding filter on an image
-    input:
-        input_image_path (str): Path to the input image
-        output_image_path (str): Path to save the output image
-    output:
-        None
-    """
-
     try:
-        input_image = Image.open(input_image_path)
+        width, height = pyautogui.size()  # Get the screen resolution
+        x = int(x * width / 2560)  # Convert x coordinate to match screen resolution
+        y = int(y * height / 1440)  # Convert y coordinate to match screen resolution
+        
+        delay = round(uniform(0, 1), 2)
+        sleep(delay)  # sleep between 2 and 3 seconds
 
-        # thresholding filter
-        threshold = 127  # luminosity threshold (0-255)
-        output_image = input_image.convert("L").point(lambda pixel: 255 if pixel > threshold else 0)
+        pyautogui.moveTo(x, y)
+        delay = round(uniform(100, 300), 2) / 1000.0
+        sleep(delay)  # between 100 and 300 ms
+        pyautogui.click()
 
-        output_image.save(output_image_path)
     except Exception as e:
-        print(f"Error when applying filter on screenshot: {e}")
+        print(f"Error when clicking: {e}")
 
 def process_image(screenshot: Image.Image, item_name: str) -> str:
     """
@@ -93,27 +76,29 @@ def process_image(screenshot: Image.Image, item_name: str) -> str:
         item_current_price (str): price of the item
     """
 
-    now = datetime.now()
-    now = now.strftime("%Y%m%d%H%M%S")
-    os.makedirs("img", exist_ok=True)    
-    filename = f"img/{item_name.replace(" ", "_")}-{now}.png"
-    
-    screenshot.save(filename)
-
-    apply_filter_on_image(filename, filename + "_filtered.png")
-    
-    # process the screenshot
-    item_img = Image.open(filename)
-    text = pytesseract.image_to_string(item_img)
     try:
-        item_current_price = int(''.join(filter(str.isdigit, text)))
-    except:
-        item_current_price = 1
-    
-    # Delete the screenshot
-    os.remove(filename)
+        # Save the screenshot within img folder
+        timestamp = datetime.now()
+        timestamp = timestamp.strftime("%Y%m%d%H%M%S") 
 
-    return item_current_price
+        filename = f"{item_name}-{timestamp}.png"
+        screenshot.save(filename)
+        
+        # process the screenshot
+        item_img = Image.open(filename)
+        text = pytesseract.image_to_string(item_img)
+        try:
+            item_current_price = int(''.join(filter(str.isdigit, text)))
+        except:
+            item_current_price = 1
+        
+        # Delete the screenshot
+        os.remove(filename)
+
+        return item_current_price
+    
+    except Exception as e:
+        print(f"Error with OCR recognition: {e}")
 
 def determine_price(item_name: str, item_quantity: int, item_type: str, item_lvl: int) -> dict:
     """
@@ -129,11 +114,11 @@ def determine_price(item_name: str, item_quantity: int, item_type: str, item_lvl
     """
 
     # click: clear research
-    do_click(759, 268)
-    sleep(0.2)
+    do_click(753, 265)
+    sleep(0.4)
 
     # click: searchbar
-    do_click(555, 264)
+    do_click(524, 265)
     sleep(0.2)
 
     # keyboard: write the item name in searchbar
@@ -141,12 +126,19 @@ def determine_price(item_name: str, item_quantity: int, item_type: str, item_lvl
     sleep(0.7)
 
     # click: first item to unwrap prices
-    do_click(856, 305)
+    do_click(845, 299)
     sleep(1)
 
     # take screenshot of average price
     # x_top_left, y_top_left, x_bottom_right, y_bottom_right
-    screenshot = ImageGrab.grab(bbox=(1220, 350, 1375, 390))
+    width, height = pyautogui.size()
+    bbox = (
+        int(1220 * width / 2560),
+        int(350 * height / 1440),
+        int(1370 * width / 2560),
+        int(380 * height / 1440)
+    )
+    screenshot = ImageGrab.grab(bbox=bbox)
     item_current_price = process_image(screenshot, item_name)
 
     print(f"Price found ! 1 x {item_name} for {item_current_price} Kamas")
@@ -164,19 +156,23 @@ def parse_recipe_from_json(json_data: list, item_name: str) -> list:
         list: list of dictionaries containing the name, quantity, and level of the recipe ingredients
     """
 
-    parsed_recipe = []
-    for item_data in json_data:
-        if item_data['name'] == item_name:
-            for recipe_item in item_data.get('recipe', []):
-                for ingredient_name, ingredient_info in recipe_item.items():
-                    parsed_recipe.append({
-                        'name': ingredient_name,
-                        'type': ingredient_info['type'],
-                        'quantity': int(ingredient_info['quantity']),
-                        'level': int(ingredient_info['lvl'])
-                    })
-            break  # Exit loop once the item's recipe is found
-    return parsed_recipe
+    try:
+        parsed_recipe = []
+        for item_data in json_data:
+            if item_data['name'] == item_name:
+                for recipe_item in item_data.get('recipe', []):
+                    for ingredient_name, ingredient_info in recipe_item.items():
+                        parsed_recipe.append({
+                            'name': ingredient_name,
+                            'type': ingredient_info['type'],
+                            'quantity': int(ingredient_info['quantity']),
+                            'level': int(ingredient_info['lvl'])
+                        })
+                break  # Exit loop once the item's recipe is found
+        return parsed_recipe
+    
+    except Exception as e:
+        print(f"Error when parsing recipe from JSON: {e}")
 
 def create_report(target: str, parsed_recipe: list) -> None:
     """
@@ -193,35 +189,41 @@ def create_report(target: str, parsed_recipe: list) -> None:
     table.field_names = [target, "Level", "Quantity", "Price", "Total Price"]
     total_price_all_items = 0 
 
-    for resource in parsed_recipe:
-        item_name = resource['name']
-        item_lvl = resource['level']
-        item_quantity = resource['quantity']
-        item_price = resource['price']
+    try:
+        for resource in parsed_recipe:
+            item_name = resource['name']
+            item_lvl = resource['level']
+            item_quantity = resource['quantity']
+            item_price = resource['price']
 
-        total_price = item_quantity * item_price
-        total_price_all_items += total_price
+            total_price = item_quantity * item_price
+            total_price_all_items += total_price
 
-        table.add_row([item_name, item_lvl, item_quantity, item_price, total_price])
+            table.add_row([item_name, item_lvl, item_quantity, item_price, total_price])
 
-    # Add 20% tax
-    tax = round(total_price_all_items * 0.20)
-    total_price_with_tax = total_price_all_items + tax
+        # Add 20% tax
+        tax = round(total_price_all_items * 0.20)
+        total_price_with_tax = total_price_all_items + tax
 
-    # Print total price with tax
-    table.add_row(["-" * 10, "-" * 10, "-" * 10, "-" * 10, "-" * 10])
-    table.add_row(["Total Price (w/ taxes)", "", "", "", total_price_with_tax])
+        # Print total price with tax
+        table.add_row(["-" * 10, "-" * 10, "-" * 10, "-" * 10, "-" * 10])
+        table.add_row(["Total Price (w/ taxes)", "", "", "", total_price_with_tax])
 
-    print(table)
+        print(table)
+    
+    except TypeError:
+        print("Error when calculating price")
+    except Exception as e:
+        print(f"Error when creating report: {e}")
 
 def main():
-
     # Pop the GUI to select items
     target_lst = create_window()
 
     # Load JSON data from file
-    with open("equipment_recipes.json", "r", encoding="utf-8") as file:
-        data = json.load(file)
+    recipe_file_path = "equipment_recipes.json"
+    with files("dofus_cookbot.res").joinpath(recipe_file_path).open(encoding="utf-8") as f:
+            data = json.loads(f.read())
 
     for target in target_lst:
         parsed_recipe = parse_recipe_from_json(data, target)

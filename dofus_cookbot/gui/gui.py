@@ -1,13 +1,12 @@
 ##########
 # Author: wildpasta
 # Description: GUI module that create the window for item selection
-# Usage: python guy.py
-# Example: python guy.py
 ##########
 
 # Standard library imports
 import json
 import sys
+from importlib.resources import files
 
 # Third party imports
 try:
@@ -19,22 +18,23 @@ except ModuleNotFoundError as e:
     print("pip install -r requirements.txt")
     sys.exit(1)
 
-def load_recipes(filename: str) -> list[str]:
+def get_item_names(recipe_file_path: str) -> list[str]:
     """ 
     purpose:
-        Load the recipes from a JSON file
+        load the recipes from a JSON file
     input:
-        filename (str): The name of the JSON file
+        recipe_file_path (str): the path of the JSON file
     output:
         names (list[str]): The list of recipe names
     """
 
     try:
-        with open(filename, 'r', encoding="utf-8") as f:
-            data = json.load(f)
+        with files("dofus_cookbot.res").joinpath(recipe_file_path).open(encoding="utf-8") as f:
+            data = json.loads(f.read())
         names = [recipe['name'] for recipe in data]
-
-        return names.sort()
+        names.sort()
+        
+        return names
     
     except FileNotFoundError as e:
         print(f"FileNotFoundError: {e}")
@@ -123,17 +123,20 @@ def create_window():
     added_items = Listbox(root, height=5, width=50)
     added_items.pack(pady=10, side=BOTTOM)
 
+    recipe_file_path = "equipment_recipes.json"
+    items = get_item_names(recipe_file_path)
 
-    items = load_recipes("equipment_recipes.json")
+    try:
+        # Add the items to our list
+        update(items)
 
-    # Add the items to our list
-    update(items)
+        # Bind the listbox on click
+        global_item_list.bind("<<ListboxSelect>>", fillout)
 
-    # Bind the listbox on click
-    global_item_list.bind("<<ListboxSelect>>", fillout)
-
-    # Create a binding on the entry box
-    my_entry.bind("<KeyRelease>", check)
+        # Create a binding on the entry box
+        my_entry.bind("<KeyRelease>", check)
+    except Exception as e:
+        print(f"Error in GUI display: {e}")
 
     root.mainloop()
     

@@ -1,6 +1,7 @@
 search.py
 __pycache__
-*.png
 venv/
 test.py
 all_recipes_example.json
+dofus_cookbot.egg-info
+dist
