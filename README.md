@@ -12,6 +12,7 @@
     + [List selection bug](#list-selection-bug)
     + [Calibrate autoclick](#calibrate-autoclick)
     + [Recipe not found](#recipe-not-found)
+    + [Run without building](run-without-building)
     + [Compatibility](#compatibility)
 * [TODO](#todo)
 
