@@ -4,4 +4,4 @@ pynput==1.7.6
 pyautogui==0.9.54
 pyscreenshot==3.1
 pytesseract==0.3.10
-Requests==2.31.0
+Requests==2.32.3
