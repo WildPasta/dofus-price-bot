@@ -9,13 +9,13 @@ authors = [{name="wildpasta", email="contact@pastabox.dev" }]
 description = "dofus bot to fetch real time value of ressources needed for crafting"
 readme = "README.md"
 dependencies = [
-    "Pillow==10.4.0",
+    "Pillow==12.1.1",
     "prettytable==3.8.0",
     "pyautogui==0.9.54",
     "pynput==1.7.6",
     "pyscreenshot==3.1",
     "pytesseract==0.3.10",
-    "Requests==2.32.3"
+    "Requests==2.32.5"
 ]
 requires-python = ">=3.9"
 
