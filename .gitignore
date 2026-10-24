@@ -2,6 +2,7 @@ search.py
 __pycache__
 .pytest_cache/
 venv/
+.venv/
 test.py
 all_recipes_example.json
 dofus_cookbot.egg-info

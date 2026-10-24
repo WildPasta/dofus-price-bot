@@ -16,10 +16,8 @@ import sys
 
 # Third-Party Imports
 try:
-    from PIL import Image, ImageFilter
+    from PIL import Image
     from prettytable import PrettyTable
-    from pynput.keyboard import Key
-    from pynput.mouse import Button as pybtn
     import pyautogui
     import pynput
     import pytesseract
@@ -89,7 +87,7 @@ def process_image(screenshot: Image.Image, item_name: str) -> str:
         text = pytesseract.image_to_string(item_img)
         try:
             item_current_price = int(''.join(filter(str.isdigit, text)))
-        except:
+        except ValueError:
             item_current_price = 1
         
         # Delete the screenshot

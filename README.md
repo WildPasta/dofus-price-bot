@@ -76,7 +76,7 @@ The test suite checks that every pinned dependency imports and behaves as the bo
 expects, so dependency bumps (e.g. [dependabot](https://docs.github.com/en/code-security/dependabot)) can be validated by CI:
 
 ```
-python3 -m pip install -r requirements-dev.txt
+python3 -m pip install -r requirements.txt -r requirements-dev.txt
 python3 -m pytest
 ```
 

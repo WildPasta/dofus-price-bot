@@ -153,7 +153,7 @@ def main() -> None:
     # Retrieve the ingredients as json
     ingredients = retrieve_ingredients(headers, item_id)
     
-    if ingredients != None:
+    if ingredients is not None:
         print(ingredients)
 
 if __name__ == "__main__":

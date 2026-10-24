@@ -7,7 +7,6 @@ from urllib.parse import unquote
 # Third-Party Imports
 import pytest
 
-import PIL
 import prettytable
 import pytesseract
 import requests
