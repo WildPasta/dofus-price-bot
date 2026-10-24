@@ -1,5 +1,6 @@
 search.py
 __pycache__
+.pytest_cache/
 venv/
 test.py
 all_recipes_example.json
