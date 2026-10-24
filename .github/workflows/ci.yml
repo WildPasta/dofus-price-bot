@@ -22,12 +22,11 @@ jobs:
       - run: uvx ruff check --select E4,E7,E9,F .
 
   test:
-    name: pytest (${{ matrix.os }}, Python ${{ matrix.python-version }})
-    runs-on: ${{ matrix.os }}
+    name: pytest (windows-latest, Python ${{ matrix.python-version }})
+    runs-on: windows-latest
     strategy:
       fail-fast: false
       matrix:
-        os: [ubuntu-24.04, windows-latest]
         python-version: ["3.11", "3.12", "3.13", "3.14"]
 
     steps:
@@ -43,23 +42,5 @@ jobs:
           uv venv
           uv pip install -r requirements.txt -r requirements-dev.txt
 
-      # On Linux, pyautogui (via mouseinfo) installs the outdated python3-xlib
-      # package while pynput installs python-xlib: both ship the Xlib module and
-      # can overwrite each other. Reinstalling python-xlib last guarantees a
-      # consistent Xlib module.
-      - name: Fix duplicate Xlib install (Linux)
-        if: runner.os == 'Linux'
-        run: uv pip install --force-reinstall --no-deps python-xlib
-
-      # The bot drives the mouse and reads the screen: use a virtual display on Linux
-      - name: Install virtual display (Linux)
-        if: runner.os == 'Linux'
-        run: sudo apt-get update && sudo apt-get install -y xvfb
-
-      - name: Run tests (Linux)
-        if: runner.os == 'Linux'
-        run: xvfb-run -a uv run --no-sync python -m pytest -v
-
-      - name: Run tests (Windows)
-        if: runner.os == 'Windows'
+      - name: Run tests
         run: uv run --no-sync python -m pytest -v

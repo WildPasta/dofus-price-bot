@@ -80,12 +80,6 @@ python3 -m pip install -r requirements.txt -r requirements-dev.txt
 python3 -m pytest
 ```
 
-On a headless Linux machine, run the display-dependent tests with a virtual display:
-
-```
-xvfb-run -a python3 -m pytest
-```
-
 ## Features
 
 - Auto clicker
