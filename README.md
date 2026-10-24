@@ -5,6 +5,7 @@
     + [150% speed demo](#150%-speed-demo)
     + [Output example](#output-example)
 * [Quick start](#quick-start)
+* [Tests](#tests)
 * [Workflow](#workflow)
 * [Features](#features)
 * [Limits](#limits)
@@ -48,6 +49,8 @@ git clone https://github.com/WildPasta/dofus-price-bot
 cd dofus-price-bot
 ```
 
+> Since `Pillow 13` and `requests 2.34`, the project requires **Python 3.11+**
+
 Locate tesseract.exe path and change path accordingly (in `dofus_cookbot\__main__.py`) for `pytesseract.pytesseract.tesseract_cmd = r'C:\\Users\\<username>\\AppData\\Local\\Programs\\Tesseract-OCR\\tesseract.exe'`
 
 ```powershell
@@ -65,7 +68,17 @@ python3 -m dofus_cookbot
 2. Dofus cooker pops a GUI where you can select the items you want to craft
 3. Once you're done, click OK
 4. Wait until the bot end the clicking actions
-5. Display ressource price in CLI
+5. Display ressource price in CLI 
+
+## Tests
+
+The test suite checks that every pinned dependency imports and behaves as the bot
+expects, so dependency bumps (e.g. [dependabot](https://docs.github.com/en/code-security/dependabot)) can be validated by CI:
+
+```
+python3 -m pip install -r requirements.txt -r requirements-dev.txt
+python3 -m pytest
+```
 
 ## Features
 

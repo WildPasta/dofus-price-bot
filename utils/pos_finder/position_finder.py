@@ -4,7 +4,6 @@
 ##########
 
 import pynput
-from pynput.mouse import Button
 from time import sleep
 
 mouse = pynput.mouse.Controller()
