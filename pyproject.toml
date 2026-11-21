@@ -10,7 +10,7 @@ description = "dofus bot to fetch real time value of ressources needed for craft
 readme = "README.md"
 dependencies = [
     "Pillow==13.0.0",
-    "prettytable==3.18.0",
+    "prettytable==3.19.0",
     "pyautogui==0.9.54",
     "pynput==1.8.2",
     "pyscreenshot==3.1",
